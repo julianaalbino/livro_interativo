@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NECRO - A Jornada de Valeria</title>
+  <link href="https://fonts.googleapis.com/css2?family=Adlery+Swash&family=UnifrakturCook&display=swap" rel="stylesheet">
+  
+
+  <style>
+    body {
+      margin: 0;
+      background: url('https://i.pinimg.com/564x/ed/e1/c6/ede1c6c05e8d63129e01ac3135b02c5d.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Georgia', serif;
+      color: #e2e2e2;
+      
+    }
+    h1, h2, h3 {
+      text-align: center;
+      font-family: 'UnifrakturCook', cursive;
+      color: #ff4444;
+      text-shadow: 2px 2px 4px #000;
+    }
+    .tela-inicial, .jogo, .final {
+      display: none;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 20px;
+      margin-top: 5vh;
+    }
+    .ativa {
+      display: block;
+    }
+    .btn {
+      display: block;
+      margin: 1.5rem auto;
+      padding: 1rem 2rem;
+      background-color: #8b0000;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 0 10px #000;
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background-color: #a30000;
+    }
+    .bloco-historia {
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background-color: rgba(30, 30, 30, 0.9);
+      border-radius: 10px;
+    }
+    .escolhas {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .escolhas button {
+      display: block;
+      margin: 0.5rem 0;
+      padding: 0.8rem;
+      background-color: #222;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 0 5px #000;
+    }
+    .escolhas button:hover {
+      background-color: #555;
+    }
+    #karmaBar {
+      margin-bottom: 1rem;
+      background: #222;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 20px;
+      box-shadow: 0 0 10px #000;
+    }
+    #karmaInner {
+      height: 100%;
+      width: 50%;
+      background: linear-gradient(to right, #4fc3f7, #f44336); /* inicial */
+      transition: width 0.5s ease, background 0.5s ease;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      padding: 1rem;
+      color: #bbb;
+    }
+  </style>
+</head>
+<body>
+  <div class="tela-inicial ativa" id="telaInicial">
+    <h1>NECRO</h1>
+    <h2>A Jornada Interativa de Valeria</h2>
+    <p style="text-align: center;">Bem-vindo(a) à história sombria de Valeria, a última necromante.<br>Você tomará decisões que moldarão o destino dela — para a luz ou para a escuridão.</p>
+    <p style="text-align: center;">Cada escolha afeta sua humanidade. Observe a barra no topo durante a jornada.<br>Você está pronto para entrar nas sombras?</p>
+    <button class="btn" onclick="iniciarJogo()">Entrar no Jogo</button>
+
+    <footer>História criada por: Daniel Henrique Neris Mota</footer>
+  </div>
+  
+
+  <div class="jogo" id="telaJogo">
+    <div id="karmaBar">
+      <div id="karmaInner"></div>
+    </div>
+    <div class="bloco-historia" id="historia"></div>
+    <div class="escolhas" id="opcoes"></div>
+  </div>
+
+  <div class="final" id="telaFinal">
+    <h2>Fim da História</h2>
+    <p>Você chegou ao fim desta jornada sombria. O livro completo está disponível na biblioteca para você explorar toda a trama e descobrir todos os segredos de Valeria.</p>
+    <button class="btn" onclick="reiniciarJogo()">Reiniciar a História</button>
+    <footer>História criada por: Daniel Henrique Neris Mota</footer>
+  </div>
+
+  <script>
+    // ===== INÍCIO DO BLOCO DE CENAS =====
+    const cenas = {
+      cap1_inicio: {
+        texto: "Nas margens do rio Lumina, cercada por colinas verdejantes, ficava Eredon — uma vila de contos, curas e esperança...",
+        opcoes: [
+          { texto: "Fugir com seus pais pela floresta", proxima: "cap1_fuga", karma: +5 },
+          { texto: "Correr para ajudar os vizinhos", proxima: "cap1_ajuda", karma: +10 }
+        ]
+      },
+      cap1_fuga: {
+        texto: "Valeria corre com os pais pela floresta...",
+        opcoes: [
+          { texto: "Esconder-se até amanhecer", proxima: "cap1_amanhecer", karma: 0 },
+          { texto: "Voltar e procurar pelos pais", proxima: "cap1_voltar", karma: -5 }
+        ]
+      },
+      cap1_ajuda: {
+        texto: "Determinada, Valeria corre até a casa de um vizinho para ajudar. Lá, vê uma família encurralada. Ela tenta distraí-los, mas é capturada brevemente. Seu pai a resgata, mas é ferido mortalmente. Antes de morrer, pede que Valeria corra — e ela obedece, em prantos.",
+        opcoes: [
+          { texto: "Escapar para a floresta", proxima: "cap1_fuga", karma: 0 }
+        ]
+      },
+      cap1_voltar: {
+        texto: "Valeria tenta voltar, mas a vila está tomada pelo fogo e pela morte. Seu cachorro Rufus a encontra e a guia para longe, salvando-a. Os dois desaparecem entre os galhos enquanto a vila ruía ao fundo.",
+        opcoes: [
+          { texto: "Seguir Rufus floresta adentro", proxima: "cap1_amanhecer", karma: +5 }
+        ]
+      },
+      cap1_amanhecer: {
+        texto: "Dias se passam na floresta. Valeria sobrevive com frutos, água do rio e a companhia de Rufus. Exausta, é encontrada por figuras encapuzadas — necromantes. A escuridão se aproxima.",
+        opcoes: [
+          { texto: "Aceitar ir com os necromantes", proxima: "cap2_treinamento", karma: -5 },
+          { texto: "Recusar e tentar fugir", proxima: "cap2_fuga_necros", karma: +5 }
+        ]
+      },
+      cap2_fuga_necros: {
+        texto: "Valeria tenta fugir, mas desmaia de fome. Ao acordar, está em uma caverna. Uma voz grave ecoa: 'Você pertence às sombras.' Malakar, o líder dos necromantes, sorri para ela.",
+        opcoes: [
+          { texto: "Aceitar seu destino sombrio", proxima: "cap2_treinamento", karma: -5 }
+        ]
+      },
+      cap2_treinamento: {
+        texto: "Nos recantos mais escuros de Eredon, Valeria é treinada nas artes negras. Malakar ensina feitiços, rituais e a dominar os mortos. Cada magia exige um sacrifício — de energia, de compaixão, de humanidade. A cada dia, a menina doce de outrora desaparece mais.",
+        opcoes: [
+          { texto: "Realizar seu primeiro ritual sozinha", proxima: "cap2_ritual", karma: -10 },
+          { texto: "Questionar os métodos sombrios", proxima: "cap2_duvida", karma: +10 }
+        ]
+      },
+      cap2_ritual: {
+        texto: "Valeria se ajoelha diante de uma sepultura esquecida. Com palavras ancestrais, convoca um espírito adormecido. Uma figura translúcida surge, sussurrando dores antigas. O ritual a consome de medo — mas também de poder.",
+        opcoes: [
+          { texto: "Continuar os rituais", proxima: "cap3_missao", karma: -10 },
+          { texto: "Pedir uma pausa a Malakar", proxima: "cap3_reflexao", karma: +5 }
+        ]
+      },
+      cap2_duvida: {
+        texto: "Durante os treinos, Valeria questiona Malakar. 'E se existisse outra forma?' O mestre, intrigado, não a pune — mas avisa: 'A dúvida enfraquece o necromante.'",
+        opcoes: [
+          { texto: "Manter-se firme nos estudos", proxima: "cap3_missao", karma: -5 },
+          { texto: "Fingir obediência e buscar respostas ocultas", proxima: "cap3_reflexao", karma: +10 }
+        ]
+      },
+      cap3_missao: {
+        texto: "Valeria é enviada a Arcádia para recuperar um grimório. Lá, encontra uma cidade em ruínas e um jovem cavaleiro ferido: Eduard. Ele implora por ajuda, mesmo reconhecendo sua túnica necromante.",
+        opcoes: [
+          { texto: "Curar Eduard", proxima: "cap3_confianca", karma: +10 },
+          { texto: "Ignorá-lo e buscar o grimório", proxima: "cap3_indiferenca", karma: -10 }
+        ]
+      },
+      cap3_reflexao: {
+        texto: "Valeria explora a biblioteca proibida. Encontra registros sobre o ciclo da vida e da morte, revelando que nem todo necromante foi um vilão. Uma faísca de esperança nasce.",
+        opcoes: [
+          { texto: "Partir para a missão em Arcádia", proxima: "cap3_missao", karma: +5 }
+        ]
+      },
+      cap3_confianca: {
+        texto: "Eduard sobrevive. Agradecido, decide acompanhar Valeria. Juntos enfrentam soldados, espectros e dúvidas crescentes.",
+        opcoes: [
+          { texto: "Revelar tudo a ele", proxima: "cap4_traicao", karma: +5 },
+          { texto: "Esconder seus segredos", proxima: "cap4_traicao", karma: -5 }
+        ]
+      },
+      cap3_indiferenca: {
+        texto: "Eduard morre. Valeria encontra o grimório, mas algo dentro dela se parte. A voz de sua mãe ecoa, silenciosa.",
+        opcoes: [
+          { texto: "Levar o grimório a Malakar", proxima: "cap4_traicao", karma: -10 }
+        ]
+      },
+      cap4_traicao: {
+        texto: "Malakar revela que usará o grimório para libertar um exército ancestral. Eduard — ou sua memória — a confronta: 'Você não é um monstro.' Valeria hesita.",
+        opcoes: [
+          { texto: "Ajudar Malakar", proxima: "cap5_destruicao", karma: -20 },
+          { texto: "Enfrentar Malakar", proxima: "cap5_confronto", karma: +20 }
+        ]
+      },
+      cap5_destruicao: {
+        texto: "Valeria liberta as legiões de mortos. Cidades caem. O mundo treme. Ela se ergue como Rainha do Submundo.",
+        opcoes: [
+          { texto: "Reinar em silêncio eterno", proxima: "final_escuridao", karma: -30 }
+        ]
+      },
+      cap5_confronto: {
+        texto: "Valeria desafia seu mestre. A batalha consome sombras e luz. Malakar cai, mas Valeria também se fere gravemente.",
+        opcoes: [
+          { texto: "Buscar redenção", proxima: "final_redencao", karma: +30 }
+        ]
+      },
+      final_escuridao: {
+        texto: "Valeria reina no Submundo. Os vivos temem seu nome. Ela perdeu tudo — menos o controle da morte.",
+        opcoes: []
+      },
+      final_redencao: {
+        texto: "Valeria sela os grimórios e desaparece. Tornou-se uma lenda — nem vilã, nem heroína, mas uma ponte entre mundos.",
+        opcoes: []
+      }
+    };
+
+
+    let karma = 50;
+
+
+    function iniciarJogo() {
+      document.getElementById('telaInicial').classList.remove('ativa');
+      document.getElementById('telaJogo').classList.add('ativa');
+      atualizarKarma(0);
+      mostrarCena('cap1_inicio');
+    }
+
+    function atualizarKarma(valor) {
+      karma += valor;
+      if (karma < 0) karma = 0;
+      if (karma > 100) karma = 100;
+
+      const karmaInner = document.getElementById('karmaInner');
+      karmaInner.style.width = karma + '%';
+
+      // Alterar cor da barra conforme valor
+      if (karma < 30) {
+        karmaInner.style.background = '#f44336'; // vermelho - corrompido
+      } else if (karma <= 70) {
+        karmaInner.style.background = '#ffc107'; // amarelo - neutro
+      } else {
+        karmaInner.style.background = '#4caf50'; // verde - luz
+      }
+    }
+
+    function reiniciarJogo() {
+      document.getElementById('telaFinal').classList.remove('ativa');
+      document.getElementById('telaInicial').classList.add('ativa');
+      karma = 50;
+      atualizarKarma(0);
+    }
+
+    function finalizarJogo() {
+      document.getElementById('telaJogo').classList.remove('ativa');
+      document.getElementById('telaFinal').classList.add('ativa');
+      audio.pause();
+    }
+    function mostrarCena(nomeCena) {
+      const cena = cenas[nomeCena];
+      const historia = document.getElementById('historia');
+      const opcoes = document.getElementById('opcoes');
+
+      historia.innerText = cena.texto;
+      opcoes.innerHTML = '';
+      
+      cena.opcoes.forEach(opcao => {
+        const botao = document.createElement('button');
+        botao.innerText = opcao.texto;
+        botao.onclick = function () {
+          atualizarKarma(opcao.karma);
+          if (opcao.proxima.startsWith("final_")) {
+            finalizarJogo();
+          } else {
+            mostrarCena(opcao.proxima);
+          }
+        };
+        opcoes.appendChild(botao);
+      });
+    }
+  </script>
+</body>
+</html>
